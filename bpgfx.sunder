@@ -1,0 +1,165 @@
+namespace bpgfx;
+import "std";
+
+# ANSI escape sequence for "move cursor home" followed by "clear screen".
+# Printing this escape sequence to the terminal will clear the screen and
+# reposition the cursor on the top-left of the terminal in terminal emulators
+# with support for ANSI escape codes.
+const CLEAR = (:[]byte)[0x1B, '[', 'H', 0x1B, '[', '2', 'J'];
+
+struct drawable_itable {
+    var draw: func(*any, *canvas) void;
+}
+
+struct drawable {
+    var itable: *bpgfx::drawable_itable;
+    var object: *any;
+
+    func init[[T]](object: *T) bpgfx::drawable {
+        const itable = (:bpgfx::drawable_itable){
+            .draw = T::draw
+        };
+        return (:bpgfx::drawable){
+            .itable = &itable,
+            .object = object
+        };
+    }
+
+    func draw(self: *bpgfx::drawable, canvas: *canvas) void {
+        return self.*.itable.*.draw(self.*.object, canvas);
+    }
+}
+
+# Two-dimensional surface of width x height virtual dot-pixels. The canvas
+# represents an image using one-bit graphics backed by a two-dimensional array
+# of bool where true represents a dot-pixel in the "raised" state and false
+# represents a dot-pixel in the "not raised" state.
+struct canvas {
+    var _allocator: std::allocator;
+    var _width: usize;
+    var _height: usize;
+    var _dots: [][]bool;
+
+    func init(allocator: std::allocator, width: usize, height: usize) canvas {
+        var dots_w = width;
+        for std::rem[[usize]](dots_w, 2) != 0 {
+            dots_w = dots_w + 1;
+        }
+
+        var dots_h = height;
+        for std::rem[[usize]](dots_h, 4) != 0 {
+            dots_h = dots_h + 1;
+        }
+
+        var dots = std::new_slice[[[]bool]](allocator, dots_h);
+        for i in 0:countof(dots) {
+            dots[i] = std::new_slice[[bool]](allocator, dots_w);
+            std::fill_slice[[bool]](dots[i], false);
+        }
+
+        return (:canvas){
+            ._allocator = allocator,
+            ._width = width,
+            ._height = height,
+            ._dots = dots
+        };
+    }
+
+    func fini(self: *canvas) void {
+        for i in 0:countof(self.*._dots) {
+            std::delete_slice[[bool]](self.*._allocator, self.*._dots[i]);
+        }
+        std::delete_slice[[[]bool]](self.*._allocator, self.*._dots);
+    }
+
+    func width(self: *canvas) usize {
+        return self.*._width;
+    }
+
+    func height(self: *canvas) usize {
+        return self.*._height;
+    }
+
+    func get(self: *canvas, x: usize, y: usize) bool {
+        if not (x < self.*._width and y < self.*._height) {
+            # off-canvas
+            return false;
+        }
+        return self.*._dots[y][x];
+    }
+
+    func set(self: *canvas, x: usize, y: usize, raised: bool) void {
+        if not (x < self.*._width and y < self.*._height) {
+            # off-canvas
+            return;
+        }
+        self.*._dots[y][x] = raised;
+    }
+
+    func clear(self: *canvas) void {
+        for i in 0:countof(self.*._dots) {
+            std::fill_slice[[bool]](self.*._dots[i], false);
+        }
+    }
+
+    func draw(self: *canvas, d: drawable) void {
+        d.draw(self);
+    }
+
+    func format(self: *canvas, writer: std::writer, fmt: []byte) std::result[[usize, []byte]] {
+        if countof(fmt) != 0 {
+            std::formatter::invalid_format_specifier(fmt);
+        }
+
+        var written: usize = 0;
+        var y: usize = 0;
+        for y < self.*._height {
+            var x: usize = 0;
+            for x < self.*._width {
+                var bits: byte = 0b00000000;
+                if self.*._dots[y + 0][x + 0] {
+                    bits = bits | 0b00000001;
+                }
+                if self.*._dots[y + 1][x + 0] {
+                    bits = bits | 0b00000010;
+                }
+                if self.*._dots[y + 2][x + 0] {
+                    bits = bits | 0b00000100;
+                }
+                if self.*._dots[y + 0][x + 1] {
+                    bits = bits | 0b00001000;
+                }
+                if self.*._dots[y + 1][x + 1] {
+                    bits = bits | 0b00010000;
+                }
+                if self.*._dots[y + 2][x + 1] {
+                    bits = bits | 0b00100000;
+                }
+                if self.*._dots[y + 3][x + 0] {
+                    bits = bits | 0b01000000;
+                }
+                if self.*._dots[y + 3][x + 1] {
+                    bits = bits | 0b10000000;
+                }
+                var char = 0x2800 | (:u16)bits;
+                var utf8 = (:[]byte)[
+                    (:byte)(char / 0x1000 & 0x0F | 0xE0),
+                    (:byte)(char / 0x0040 & 0x3F | 0x80),
+                    (:byte)(char          & 0x3F | 0x80)
+                ];
+                var write_result = std::write_all(writer, utf8);
+                if write_result.is_error() {
+                    return write_result;
+                }
+                written = written + write_result.value();
+                x = x + 2;
+            }
+            var write_result = std::write_all_accumulate(writer, "\n", &written);
+            if write_result.is_error() {
+                return write_result;
+            }
+            y = y + 4;
+        }
+        return std::result[[usize, []byte]]::init_value(written);
+    }
+}
