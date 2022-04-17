@@ -5,7 +5,7 @@ import "std";
 # Printing this escape sequence to the terminal will clear the screen and
 # reposition the cursor on the top-left of the terminal in terminal emulators
 # with support for ANSI escape codes.
-const CLEAR = (:[]byte)[0x1B, '[', 'H', 0x1B, '[', '2', 'J'];
+const CLEAR = "\x1B[H\x1B[2J";
 
 struct drawable_itable {
     var draw: func(*any, *canvas) void;
