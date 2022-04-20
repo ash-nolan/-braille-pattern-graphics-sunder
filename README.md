@@ -2,9 +2,9 @@
 Library for 2D graphics using characters from the [Unicode Braille Patterns
 Block](https://en.wikipedia.org/wiki/Braille_Patterns). Ported from the Braille
 Pattern Graphics [Python 3
-library](https://github.com/ash-nolan/braille-pattern-graphics) for
-[Sunder](https://github.com/ash-nolan/sunder) version
-[2022.04.17](https://github.com/ash-nolan/sunder/releases/tag/2022.04.17).
+library](https://github.com/ashn-dot-dev/braille-pattern-graphics) for
+[Sunder](https://github.com/ashn-dot-dev/sunder) version
+[2022.04.20](https://github.com/ashn-dot-dev/sunder/releases/tag/2022.04.20).
 
 ## Usage
 ```
