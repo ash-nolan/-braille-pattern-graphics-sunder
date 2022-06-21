@@ -4,9 +4,9 @@ Block](https://en.wikipedia.org/wiki/Braille_Patterns). Ported from the Braille
 Pattern Graphics [Python 3
 library](https://github.com/ashn-dot-dev/braille-pattern-graphics) for
 [Sunder](https://github.com/ashn-dot-dev/sunder) version
-[2022.04.20](https://github.com/ashn-dot-dev/sunder/releases/tag/2022.04.20).
+[2022.06.21](https://github.com/ashn-dot-dev/sunder/releases/tag/2022.06.21).
 
-## Usage
+## Example Usage
 ```
 import "std";
 import "bpgfx.sunder";
@@ -27,21 +27,21 @@ func main() void {
     }
 
     # Draw a rectangle around the border of the canvas.
-    for x in 0:canvas.width() {
+    for x in canvas.width() {
         canvas.set(x, 0, true);
         canvas.set(x, canvas.height() - 1, true);
     }
-    for y in 0:canvas.height() {
+    for y in canvas.height() {
         canvas.set(0, y, true);
         canvas.set(canvas.width() - 1, y, true);
     }
 
     # Add some stars in the background.
     for x in 2:canvas.width()-2 {
-        if std::rem[[usize]](x, 2) == 0 {
+        if x % 2 == 0 {
             continue;
         }
-        var y = std::rem[[usize]]((x * 23) / 7, canvas.height());
+        var y = ((x * 23) / 7) % canvas.height();
         canvas.set(x, y, true);
     }
 
@@ -84,8 +84,7 @@ struct spaceship {
 }
 ```
 ```sh
-$ make example && ./example
-sunder-compile -o example example.sunder
+$ sunder-run example.sunder
 ⡏⠉⠉⠉⠉⠉⠉⠉⠉⠩⠉⠉⠉⠉⠉⠉⠉⠉⠙⢹
 ⡇⠀⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⢸
 ⡇⠐⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⢀⠀⠀⠀⢸

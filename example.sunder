@@ -17,21 +17,21 @@ func main() void {
     }
 
     # Draw a rectangle around the border of the canvas.
-    for x in 0:canvas.width() {
+    for x in canvas.width() {
         canvas.set(x, 0, true);
         canvas.set(x, canvas.height() - 1, true);
     }
-    for y in 0:canvas.height() {
+    for y in canvas.height() {
         canvas.set(0, y, true);
         canvas.set(canvas.width() - 1, y, true);
     }
 
     # Add some stars in the background.
     for x in 2:canvas.width()-2 {
-        if std::rem[[usize]](x, 2) == 0 {
+        if x % 2 == 0 {
             continue;
         }
-        var y = std::rem[[usize]]((x * 23) / 7, canvas.height());
+        var y = ((x * 23) / 7) % canvas.height();
         canvas.set(x, y, true);
     }
 

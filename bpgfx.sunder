@@ -42,19 +42,19 @@ struct canvas {
 
     func init(allocator: std::allocator, width: usize, height: usize) canvas {
         var dots_w = width;
-        for std::rem[[usize]](dots_w, 2) != 0 {
+        for dots_w % 2 != 0 {
             dots_w = dots_w + 1;
         }
 
         var dots_h = height;
-        for std::rem[[usize]](dots_h, 4) != 0 {
+        for dots_h % 4 != 0 {
             dots_h = dots_h + 1;
         }
 
-        var dots = std::new_slice[[[]bool]](allocator, dots_h);
-        for i in 0:countof(dots) {
-            dots[i] = std::new_slice[[bool]](allocator, dots_w);
-            std::fill_slice[[bool]](dots[i], false);
+        var dots = std::slice[[[]bool]]::new(allocator, dots_h);
+        for i in countof(dots) {
+            dots[i] = std::slice[[bool]]::new(allocator, dots_w);
+            std::slice[[bool]]::fill(dots[i], false);
         }
 
         return (:canvas){
@@ -66,10 +66,10 @@ struct canvas {
     }
 
     func fini(self: *canvas) void {
-        for i in 0:countof(self.*._dots) {
-            std::delete_slice[[bool]](self.*._allocator, self.*._dots[i]);
+        for i in countof(self.*._dots) {
+            std::slice[[bool]]::delete(self.*._allocator, self.*._dots[i]);
         }
-        std::delete_slice[[[]bool]](self.*._allocator, self.*._dots);
+        std::slice[[[]bool]]::delete(self.*._allocator, self.*._dots);
     }
 
     func width(self: *canvas) usize {
@@ -97,8 +97,8 @@ struct canvas {
     }
 
     func clear(self: *canvas) void {
-        for i in 0:countof(self.*._dots) {
-            std::fill_slice[[bool]](self.*._dots[i], false);
+        for i in countof(self.*._dots) {
+            std::slice[[bool]]::fill(self.*._dots[i], false);
         }
     }
 
@@ -108,7 +108,7 @@ struct canvas {
 
     func format(self: *canvas, writer: std::writer, fmt: []byte) std::result[[void, []byte]] {
         if countof(fmt) != 0 {
-            std::formatter::invalid_format_specifier(fmt);
+            std::formatter::panic_invalid_format_specifier(fmt);
         }
 
         var y: usize = 0;
