@@ -106,7 +106,7 @@ struct canvas {
         d.draw(self);
     }
 
-    func format(self: *canvas, writer: std::writer, fmt: []byte) std::result[[void, []byte]] {
+    func format(self: *canvas, writer: std::writer, fmt: []byte) std::result[[void, std::error]] {
         if countof(fmt) != 0 {
             std::formatter::panic_invalid_format_specifier(fmt);
         }
@@ -158,6 +158,6 @@ struct canvas {
             }
             y = y + 4;
         }
-        return std::result[[void, []byte]]::init_value(void::init());
+        return std::result[[void, std::error]]::init_value(void::init());
     }
 }
