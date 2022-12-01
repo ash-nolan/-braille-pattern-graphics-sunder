@@ -158,6 +158,6 @@ struct canvas {
             }
             y = y + 4;
         }
-        return std::result[[void, std::error]]::init_value(void::init());
+        return std::result[[void, std::error]]::init_value(void::VALUE);
     }
 }
