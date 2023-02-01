@@ -4,7 +4,7 @@ Block](https://en.wikipedia.org/wiki/Braille_Patterns). Ported from the Braille
 Pattern Graphics [Python 3
 library](https://github.com/ashn-dot-dev/braille-pattern-graphics) for
 [Sunder](https://github.com/ashn-dot-dev/sunder) version
-[2022.12.01](https://github.com/ashn-dot-dev/sunder/releases/tag/2022.12.01).
+[2023.02.01](https://github.com/ashn-dot-dev/sunder/releases/tag/2023.02.01).
 
 ## Example Usage
 ```
@@ -12,19 +12,12 @@ import "std";
 import "bpgfx.sunder";
 
 func main() void {
-    var allocator = std::general_allocator::init();
-    defer {
-        allocator.fini();
-    }
-
     # Create a 40 x 30 canvas of virtual dot pixels.
     #
     # Virtual dot-pixels are mapped onto a grid of braille characters when the
     # canvas is rendered via its format member function.
-    var canvas = bpgfx::canvas::init(std::allocator::init[[typeof(allocator)]](&allocator), 40, 30);
-    defer {
-        canvas.fini();
-    }
+    var canvas = bpgfx::canvas::init(40, 30);
+    defer canvas.fini();
 
     # Draw a rectangle around the border of the canvas.
     for x in canvas.width() {

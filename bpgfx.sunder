@@ -5,7 +5,7 @@ import "std";
 # Printing this escape sequence to the terminal will clear the screen and
 # reposition the cursor on the top-left of the terminal in terminal emulators
 # with support for ANSI escape codes.
-const CLEAR = "\x1B[H\x1B[2J";
+let CLEAR = "\x1B[H\x1B[2J";
 
 struct drawable_itable {
     var draw: func(*any, *canvas) void;
@@ -16,7 +16,7 @@ struct drawable {
     var object: *any;
 
     func init[[T]](object: *T) bpgfx::drawable {
-        const itable = (:bpgfx::drawable_itable){
+        let itable = (:bpgfx::drawable_itable){
             .draw = T::draw
         };
         return (:bpgfx::drawable){
@@ -40,7 +40,11 @@ struct canvas {
     var _height: usize;
     var _dots: [][]bool;
 
-    func init(allocator: std::allocator, width: usize, height: usize) canvas {
+    func init(width: usize, height: usize) canvas {
+        return canvas::init_with_allocator(std::global_allocator(), width, height);
+    }
+
+    func init_with_allocator(allocator: std::allocator, width: usize, height: usize) canvas {
         var dots_w = width;
         for dots_w % 2 != 0 {
             dots_w = dots_w + 1;
@@ -51,9 +55,9 @@ struct canvas {
             dots_h = dots_h + 1;
         }
 
-        var dots = std::slice[[[]bool]]::new(allocator, dots_h);
+        var dots = std::slice[[[]bool]]::new_with_allocator(allocator, dots_h);
         for i in countof(dots) {
-            dots[i] = std::slice[[bool]]::new(allocator, dots_w);
+            dots[i] = std::slice[[bool]]::new_with_allocator(allocator, dots_w);
             std::slice[[bool]]::fill(dots[i], false);
         }
 
@@ -67,9 +71,9 @@ struct canvas {
 
     func fini(self: *canvas) void {
         for i in countof(self.*._dots) {
-            std::slice[[bool]]::delete(self.*._allocator, self.*._dots[i]);
+            std::slice[[bool]]::delete_with_allocator(self.*._allocator, self.*._dots[i]);
         }
-        std::slice[[[]bool]]::delete(self.*._allocator, self.*._dots);
+        std::slice[[[]bool]]::delete_with_allocator(self.*._allocator, self.*._dots);
     }
 
     func width(self: *canvas) usize {

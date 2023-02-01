@@ -2,19 +2,12 @@ import "std";
 import "bpgfx.sunder";
 
 func main() void {
-    var allocator = std::general_allocator::init();
-    defer {
-        allocator.fini();
-    }
-
     # Create a 40 x 30 canvas of virtual dot pixels.
     #
     # Virtual dot-pixels are mapped onto a grid of braille characters when the
     # canvas is rendered via its format member function.
-    var canvas = bpgfx::canvas::init(std::allocator::init[[typeof(allocator)]](&allocator), 40, 30);
-    defer {
-        canvas.fini();
-    }
+    var canvas = bpgfx::canvas::init(40, 30);
+    defer canvas.fini();
 
     # Draw a rectangle around the border of the canvas.
     for x in canvas.width() {
