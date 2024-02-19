@@ -4,7 +4,7 @@ Block](https://en.wikipedia.org/wiki/Braille_Patterns). Ported from the Braille
 Pattern Graphics [Python 3
 library](https://github.com/ashn-dot-dev/braille-pattern-graphics) for
 [Sunder](https://github.com/ashn-dot-dev/sunder) version
-[2023.03.31](https://github.com/ashn-dot-dev/sunder/releases/tag/2023.03.31).
+[2024.02.19](https://github.com/ashn-dot-dev/sunder/releases/tag/2024.02.19).
 
 ## Example Usage
 ```
